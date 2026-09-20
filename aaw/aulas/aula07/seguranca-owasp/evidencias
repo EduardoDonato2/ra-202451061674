@@ -1,0 +1,34 @@
+
+## Falha 1: SQL Injection (ProdutosController)
+**Antes (Vulnerável):** A API devolvia todos os produtos com o payload `%' OR '1'='1`.
+![Antes Falha 1](Falha1-antes.png)
+
+**Depois (Blindado):** Com o uso de LINQ, a lista retorna vazia.
+![Depois Falha 1](Falha1-depois.png)
+
+#####
+
+## Falha 2: IDOR (PedidosController)
+**Antes (Vulnerável):** O utilizador autenticado conseguia aceder a pedidos de outros clientes apenas alterando o ID na URL.
+![Antes Falha 2](Falha2-antes.png)
+
+**Depois (Blindado):** O código agora extrai a identidade do token JWT e devolve 403 Forbidden caso o utilizador tente aceder a um pedido que não lhe pertence.
+![Depois Falha 2](Falha2-depois.png)
+
+#####
+
+## Falha 3: Segredos Expostos e Stack Trace (Program.cs)
+**Antes (Vulnerável):** A chave secreta do JWT e a Connection String estavam escritas diretamente no código. Além disso, erros de servidor (500) expunham a stack trace com caminhos internos do sistema.
+![Antes Falha 3](Falha3-antes.png)
+
+**Depois (Blindado):** As credenciais foram movidas em segurança para o `appsettings.json` e adicionou-se um intercetor de exceções para devolver apenas uma mensagem de erro genérica.
+![Depois Falha 3]!![alt text](Falha3(1)-depois.png)
+
+######
+
+## Falha 4: Mass Assignment (UsuariosController)
+**Antes (Vulnerável):** Ao fazer um pedido PUT para atualizar os dados, era possível injetar `"role": "Admin"` e o sistema aceitava a elevação de privilégios.
+![Antes Falha 4](![alt text](Falha4-antes.png))
+
+**Depois (Blindado):** O método de atualização foi corrigido para ignorar o campo Role enviado pelo cliente, mantendo o nível de acesso original intacto.
+![Depois Falha 4](![alt text](falha4-depois.png))
