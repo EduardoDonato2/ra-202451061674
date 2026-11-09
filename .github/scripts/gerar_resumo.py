@@ -57,11 +57,15 @@ for i in range(0, len(resumo), 2000):
     })
 
 data = {
-    "parent": {"database_id": NOTION_DATABASE_ID},
+    "parent": {"page_id": NOTION_DATABASE_ID},
     "properties": {
-        "Nome": {
-            "title": [{"text": {"content": f"Sessão de Código - {datetime.now().strftime('%d/%m/%Y')}"}}]
-        }
+        "title": [
+            {
+                "text": {
+                    "content": f"Resumo de Código - {datetime.now().strftime('%d/%m/%Y')}"
+                }
+            }
+        ]
     },
     "children": blocos_notion
 }
