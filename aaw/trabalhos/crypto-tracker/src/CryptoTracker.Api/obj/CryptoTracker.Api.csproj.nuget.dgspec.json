@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\CryptoTracker.Api\\CryptoTracker.Api.csproj": {}
+    "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\src\\CryptoTracker.Api\\CryptoTracker.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\CryptoTracker.Api\\CryptoTracker.Api.csproj": {
+    "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\src\\CryptoTracker.Api\\CryptoTracker.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\CryptoTracker.Api\\CryptoTracker.Api.csproj",
+        "projectUniqueName": "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\src\\CryptoTracker.Api\\CryptoTracker.Api.csproj",
         "projectName": "CryptoTracker.Api",
-        "projectPath": "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\CryptoTracker.Api\\CryptoTracker.Api.csproj",
+        "projectPath": "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\src\\CryptoTracker.Api\\CryptoTracker.Api.csproj",
         "packagesPath": "C:\\Users\\overs\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\CryptoTracker.Api\\obj\\",
+        "outputPath": "C:\\Users\\overs\\source\\repos\\ra-202451061674\\aaw\\trabalhos\\crypto-tracker\\src\\CryptoTracker.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\overs\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -46,9 +46,17 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[10.0.14, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.11, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.13.0, )"
             }
           },
           "imports": [
