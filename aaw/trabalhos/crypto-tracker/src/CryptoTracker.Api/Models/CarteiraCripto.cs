@@ -1,12 +1,12 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace CryptoTracker.API.Models;
+namespace CryptoTracker.Api.Models;
 
-public class carteiraCripto
+public class CarteiraCripto
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectID)]
+    [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set;}
 
     [BsonElement("nomeCarteira")]
