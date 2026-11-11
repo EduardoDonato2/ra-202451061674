@@ -1,5 +1,6 @@
 using CryptoTracker.Api.Config;
 using CryptoTracker.Api.Repositories;
+using CryptoTracker.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,9 @@ builder.Services.Configure<MongoDbSettings>(
 
 // 2. Registra o repositório na Injeção de Dependência
 builder.Services.AddSingleton<ICarteiraRepository, CarteiraRepository>();
+
+// 3. Registra o serviço na Injeção de Dependência (NOVO)
+builder.Services.AddScoped<ICarteiraService, CarteiraService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
