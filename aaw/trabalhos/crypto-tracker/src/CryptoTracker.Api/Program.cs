@@ -14,6 +14,10 @@ builder.Services.AddSingleton<ICarteiraRepository, CarteiraRepository>();
 // 3. Registra o serviço na Injeção de Dependência (NOVO)
 builder.Services.AddScoped<ICarteiraService, CarteiraService>();
 
+// Adicione junto aos registos existentes no Program.cs:
+builder.Services.AddSingleton<ITransacaoRepository, TransacaoRepository>();
+builder.Services.AddScoped<ITransacaoService, TransacaoService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
