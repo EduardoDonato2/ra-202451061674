@@ -1,11 +1,14 @@
 using CryptoTracker.Api.Models;
 using CryptoTracker.Api.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 namespace CryptoTracker.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
+
+
 public class CarteirasController : ControllerBase
 {
     private readonly ICarteiraService _carteiraService;
