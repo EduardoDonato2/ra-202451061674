@@ -21,9 +21,20 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
-        // Validação de credenciais para demonstração acadêmica
-        if (request.Username != "admin" || request.Password != "admin123")
+        string role;
+
+        if (request.Username == "admin" && request.Password == "admin123")
+        {
+            role = "Admin";
+        }
+        else if (request.Username == "investidor" && request.Password == "user123")
+        {
+            role = "Investidor";
+        }
+        else
+        {
             return Unauthorized(new { mensagem = "Usuário ou senha inválidos." });
+        }
 
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"]!;
@@ -34,7 +45,7 @@ public class AuthController : ControllerBase
         {
             new Claim(JwtRegisteredClaimNames.Sub, request.Username),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, "Investidor")
+            new Claim(ClaimTypes.Role, role)
         };
 
         var token = new JwtSecurityToken(

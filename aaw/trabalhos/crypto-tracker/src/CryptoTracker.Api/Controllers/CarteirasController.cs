@@ -64,6 +64,8 @@ public class CarteirasController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Remover(string id)
     {

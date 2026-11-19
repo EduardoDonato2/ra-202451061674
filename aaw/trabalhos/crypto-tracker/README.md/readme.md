@@ -1,15 +1,22 @@
 # CryptoTracker API
 
-API RESTful desenvolvida em **.NET 10 (ASP.NET Core)** com **MongoDB** e autenticação **JWT**, voltada para o gerenciamento de carteiras de criptoativos e controle automatizado de transações de compra e venda.
+- **Aluno:** Eduardo Donato Batista Mendes
+- **Curso / Turma:** Ciência da Computação — Arquitetura de Aplicações Web (2026.2)
+
+## Descrição do Projeto e Domínio
+
+O **CryptoTracker** é uma aplicação web completa voltada ao gerenciamento de carteiras de criptoativos e registro automatizado de operações de compra e venda. O sistema controla o saldo disponível em USD de cada carteira e valida a custódia de ativos antes de autorizar vendas, integrando uma API RESTful em **.NET 10** com persistência NoSQL em **MongoDB**, segurança via **JWT** e uma interface web com consumo assíncrono via `fetch`.
+
+---
 
 ## Arquitetura e Tecnologias
 
-- **Linguagem / Framework:** C# / .NET 10 Web API
+- **Backend:** C# / .NET 10 Web API (camadas `Controller` → `Service` → `Repository` com Injeção de Dependência)
 - **Banco de Dados:** MongoDB (via Docker Compose)
-- **Segurança:** Autenticação e Autorização via JWT (HMAC-SHA256)
-- **Documentação Interativa:** Swagger / OpenAPI
+- **Frontend:** HTML5, CSS3 e JavaScript Assíncrono (`fetch`) sem recarregamento de página
+- **Segurança:** Autenticação JWT (HMAC-SHA256) e Autorização baseada em perfis (RBAC)
+- **Documentação:** OpenAPI / Swagger
 - **Testes Automatizados:** xUnit + Moq
-- **Padrão Arquitetural:** Camadas desacopladas (`Controller` → `Service` → `Repository`) com Injeção de Dependência.
 
 ---
 
@@ -20,7 +27,21 @@ API RESTful desenvolvida em **.NET 10 (ASP.NET Core)** com **MongoDB** e autenti
 
 ---
 
-## Como Executar o Projeto
+## Variáveis de Ambiente
+
+Configure as variáveis abaixo no ambiente ou via `appsettings.json` local (nunca suba segredos reais no repositório):
+
+| Variável | Descrição | Exemplo |
+| :--- | :--- | :--- |
+| `MongoDbSettings__ConnectionString` | String de conexão com o servidor MongoDB | `mongodb://localhost:27017` |
+| `MongoDbSettings__DatabaseName` | Nome do banco de dados NoSQL | `CryptoTrackerDb` |
+| `JwtSettings__SecretKey` | Chave secreta (mín. 32 caracteres) para assinatura HMAC-SHA256 | `SuaChaveSecretaSuperSeguraCom32Chars!` |
+| `JwtSettings__Issuer` | Emissor do token JWT | `CryptoTrackerApi` |
+| `JwtSettings__Audience` | Público-alvo do token JWT | `CryptoTrackerUsers` |
+
+---
+
+## Como Executar Localmente
 
 ### 1. Subir o Banco de Dados (MongoDB)
 Na raiz do projeto (`crypto-tracker`), inicie o container do MongoDB:

@@ -76,6 +76,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 // A ordem abaixo é obrigatória: primeiro Autenticação, depois Autorização
 app.UseAuthentication();
 app.UseAuthorization();

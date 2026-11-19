@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoTracker — Gestão de Carteiras</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 24px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    input, select, button { padding: 10px 12px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #f8fafc; }
+    button { background: #2563eb; border: none; cursor: pointer; font-weight: 600; }
+    button:hover { background: #1d4ed8; }
+    button.secondary { background: #475569; }
+    button.danger { background: #dc2626; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #334155; }
+    .msg { padding: 10px; border-radius: 6px; margin-bottom: 16px; }
+    .erro { background: #7f1d1d; color: #fecaca; }
+    .sucesso { background: #14532d; color: #bbf7d0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1 style="margin:0;">CryptoTracker</h1>
+        <small style="color:#94a3b8;">Consumo Assíncrono REST API (.NET 10 + MongoDB)</small>
+      </div>
+      <div id="auth-box" class="row">
+        <input id="login-user" type="text" value="admin" placeholder="Usuário" />
+        <input id="login-pass" type="password" value="admin123" placeholder="Senha" />
+        <button onclick="fazerLogin()">Entrar (JWT)</button>
+      </div>
+      <div id="user-logged" class="hidden row">
+        <span id="status-token" style="color:#4ade80; font-size:0.9rem;">Autenticado</span>
+        <button class="secondary" onclick="sair()">Sair</button>
+      </div>
+    </header>
+
+    <div id="feedback" class="msg hidden"></div>
+
+    <!-- VISÃO 1: LISTA DE CARTEIRAS -->
+    <section id="view-lista">
+      <div class="row" style="justify-content: space-between; margin-bottom: 16px;">
+        <h2 style="margin:0;">Minhas Carteiras</h2>
+        <div class="row">
+          <button class="secondary" onclick="carregarCarteiras()">Atualizar Lista</button>
+          <button onclick="mostrarFormularioCarteira()">+ Nova Carteira</button>
+        </div>
+      </div>
+      <div id="lista-carteiras">
+        <p style="color:#94a3b8;">Faça login acima para carregar as carteiras.</p>
+      </div>
+    </section>
+
+    <!-- VISÃO 2: FORMULÁRIO DE NOVA CARTEIRA -->
+    <section id="view-formulario" class="hidden">
+      <div class="card">
+        <h2>Cadastrar Nova Carteira</h2>
+        <form onsubmit="criarCarteira(event)" class="row">
+          <input id="nome-carteira" type="text" placeholder="Nome da carteira (ex: Hold BTC)" required />
+          <input id="saldo-carteira" type="number" step="0.01" min="0" placeholder="Saldo inicial USD" required />
+          <button type="submit">Salvar Carteira</button>
+          <button type="button" class="secondary" onclick="voltarParaLista()">Cancelar</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VISÃO 3: DETALHE DA CARTEIRA + TRANSAÇÕES -->
+    <section id="view-detalhe" class="hidden">
+      <button class="secondary" onclick="voltarParaLista()" style="margin-bottom:16px;">← Voltar para Lista</button>
+      <div class="card" id="detalhe-cabecalho"></div>
+
+      <div class="card">
+        <h3>Registrar Operação (Compra / Venda)</h3>
+        <form onsubmit="registrarTransacao(event)" class="row">
+          <select id="tx-tipo">
+            <option value="COMPRA">COMPRA</option>
+            <option value="VENDA">VENDA</option>
+          </select>
+          <input id="tx-ticker" type="text" placeholder="Ativo (ex: BTC)" required style="width:110px;" />
+          <input id="tx-qtd" type="number" step="any" min="0.000001" placeholder="Quantidade" required style="width:130px;" />
+          <input id="tx-preco" type="number" step="0.01" min="0.01" placeholder="Preço Unit. USD" required style="width:150px;" />
+          <button type="submit">Executar Ordem</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Histórico de Transações da Carteira</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Data (UTC)</th>
+              <th>Tipo</th>
+              <th>Ativo</th>
+              <th>Quantidade</th>
+              <th>Preço Unit.</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-transacoes"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let tokenJwt = sessionStorage.getItem('jwt') || '';
+    let carteiraAtualId = null;
+
+    if (tokenJwt) {
+      atualizarEstadoAuth(true);
+      carregarCarteiras();
+    }
+
+    function mostrarMensagem(texto, tipo = 'sucesso') {
+      const el = document.getElementById('feedback');
+      el.textContent = texto;
+      el.className = `msg ${tipo}`;
+      setTimeout(() => el.classList.add('hidden'), 5000);
+    }
+
+    function atualizarEstadoAuth(logado) {
+      document.getElementById('auth-box').classList.toggle('hidden', logado);
+      document.getElementById('user-logged').classList.toggle('hidden', !logado);
+    }
+
+    function alternarVisao(visaoId) {
+      ['view-lista', 'view-formulario', 'view-detalhe'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', id !== visaoId);
+      });
+    }
+
+    async function fazerLogin() {
+      const username = document.getElementById('login-user').value;
+      const password = document.getElementById('login-pass').value;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) throw new Error('Credenciais inválidas.');
+        const data = await res.json();
+        tokenJwt = data.token;
+        sessionStorage.setItem('jwt', tokenJwt);
+        atualizarEstadoAuth(true);
+        mostrarMensagem('Login realizado com sucesso!');
+        carregarCarteiras();
+      } catch (err) {
+        mostrarMensagem(err.message, 'erro');
+      }
+    }
+
+    function sair() {
+      tokenJwt = '';
+      sessionStorage.removeItem('jwt');
+      atualizarEstadoAuth(false);
+      document.getElementById('lista-carteiras').innerHTML = '<p style="color:#94a3b8;">Sessão encerrada.</p>';
+      voltarParaLista();
+    }
+
+    async function carregarCarteiras() {
+      try {
+        const res = await fetch('/api/carteiras', {
+          headers: { 'Authorization': `Bearer ${tokenJwt}` }
+        });
+        if (res.status === 401) throw new Error('Token expirado ou inválido. Faça login novamente.');
+        const carteiras = await res.json();
+        const container = document.getElementById('lista-carteiras');
+
+        if (!carteiras.length) {
+          container.innerHTML = '<div class="card">Nenhuma carteira cadastrada. Clique em "+ Nova Carteira".</div>';
+          return;
+        }
+
+        container.innerHTML = carteiras.map(c => `
+          <div class="card row" style="justify-content: space-between;">
+            <div>
+              <strong>${c.nomeCarteira}</strong><br/>
+              <small style="color:#94a3b8;">ID: ${c.id}</small><br/>
+              <span style="color:#4ade80; font-weight:bold;">Saldo Disponível: $${Number(c.saldoDisponivelUsd).toFixed(2)}</span>
+            </div>
+            <div class="row">
+              <button onclick="abrirDetalhe('${c.id}')">Ver Detalhes / Operar</button>
+              <button class="danger" onclick="excluirCarteira('${c.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        mostrarMensagem(err.message, 'erro');
+      }
+    }
+
+    function mostrarFormularioCarteira() {
+      if (!tokenJwt) return mostrarMensagem('Faça login primeiro.', 'erro');
+      alternarVisao('view-formulario');
+    }
+
+    function voltarParaLista() {
+      carteiraAtualId = null;
+      alternarVisao('view-lista');
+      if (tokenJwt) carregarCarteiras();
+    }
+
+    async function criarCarteira(event) {
+      event.preventDefault();
+      const nomeCarteira = document.getElementById('nome-carteira').value;
+      const saldoDisponivelUsd = parseFloat(document.getElementById('saldo-carteira').value);
+
+      try {
+        const res = await fetch('/api/carteiras', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenJwt}`
+          },
+          body: JSON.stringify({ nomeCarteira, saldoDisponivelUsd })
+        });
+        if (!res.ok) {
+          const erroTexto = await res.text();
+          throw new Error(erroTexto || 'Erro ao criar carteira.');
+        }
+        document.getElementById('nome-carteira').value = '';
+        document.getElementById('saldo-carteira').value = '';
+        mostrarMensagem('Carteira criada com sucesso!');
+        voltarParaLista();
+      } catch (err) {
+        mostrarMensagem(err.message, 'erro');
+      }
+    }
+
+    async function excluirCarteira(id) {
+      if (!confirm('Deseja realmente excluir esta carteira?')) return;
+      try {
+        const res = await fetch(`/api/carteiras/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${tokenJwt}` }
+        });
+        if (res.status === 403) throw new Error('Acesso negado: apenas perfil Admin pode excluir.');
+        if (!res.ok) throw new Error('Erro ao excluir carteira.');
+        mostrarMensagem('Carteira excluída.');
+        carregarCarteiras();
+      } catch (err) {
+        mostrarMensagem(err.message, 'erro');
+      }
+    }
+
+    async function abrirDetalhe(id) {
+      carteiraAtualId = id;
+      alternarVisao('view-detalhe');
+      try {
+        const [resCarteira, resTx] = await Promise.all([
+          fetch(`/api/carteiras/${id}`, { headers: { 'Authorization': `Bearer ${tokenJwt}` } }),
+          fetch(`/api/transacoes/carteira/${id}`, { headers: { 'Authorization': `Bearer ${tokenJwt}` } })
+        ]);
+        const carteira = await resCarteira.json();
+        const transacoes = await resTx.json();
+
+        document.getElementById('detalhe-cabecalho').innerHTML = `
+          <h2 style="margin:0 0 8px 0;">${carteira.nomeCarteira}</h2>
+          <p style="margin:4px 0; color:#94a3b8;">ID: ${carteira.id}</p>
+          <p style="margin:4px 0; font-size:1.2rem; color:#4ade80;"><strong>Saldo Disponível: $${Number(carteira.saldoDisponivelUsd).toFixed(2)}</strong></p>
+        `;
+
+        const tbody = document.getElementById('tabela-transacoes');
+        tbody.innerHTML = transacoes.length
+          ? transacoes.map(t => `
+              <tr>
+                <td>${new Date(t.dataHora).toLocaleString('pt-BR')}</td>
+                <td><strong>${t.tipoOperacao}</strong></td>
+                <td>${t.ticker}</td>
+                <td>${t.quantidade}</td>
+                <td>$${Number(t.precoUnitarioUsd).toFixed(2)}</td>
+              </tr>
+            `).join('')
+          : '<tr><td colspan="5" style="color:#94a3b8;">Nenhuma transação registrada nesta carteira.</td></tr>';
+      } catch (err) {
+        mostrarMensagem('Erro ao carregar detalhes da carteira.', 'erro');
+      }
+    }
+
+    async function registrarTransacao(event) {
+      event.preventDefault();
+      const payload = {
+        carteiraId: carteiraAtualId,
+        tipoOperacao: document.getElementById('tx-tipo').value,
+        ticker: document.getElementById('tx-ticker').value,
+        quantidade: parseFloat(document.getElementById('tx-qtd').value),
+        precoUnitarioUsd: parseFloat(document.getElementById('tx-preco').value)
+      };
+
+      try {
+        const res = await fetch('/api/transacoes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenJwt}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const erroObj = await res.json().catch(() => null);
+          throw new Error(erroObj?.erro || erroObj?.message || 'Erro ao registrar transação.');
+        }
+        document.getElementById('tx-ticker').value = '';
+        document.getElementById('tx-qtd').value = '';
+        document.getElementById('tx-preco').value = '';
+        mostrarMensagem('Transação registrada e saldo atualizado!');
+        abrirDetalhe(carteiraAtualId);
+      } catch (err) {
+        mostrarMensagem(err.message, 'erro');
+      }
+    }
+  </script>
+</body>
+</html>

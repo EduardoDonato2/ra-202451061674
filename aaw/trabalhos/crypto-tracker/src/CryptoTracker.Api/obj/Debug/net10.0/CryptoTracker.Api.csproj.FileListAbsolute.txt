@@ -50,3 +50,5 @@ C:\Users\overs\source\repos\ra-202451061674\aaw\trabalhos\crypto-tracker\src\Cry
 C:\Users\overs\source\repos\ra-202451061674\aaw\trabalhos\crypto-tracker\src\CryptoTracker.Api\obj\Debug\net10.0\CryptoTracker.Api.pdb
 C:\Users\overs\source\repos\ra-202451061674\aaw\trabalhos\crypto-tracker\src\CryptoTracker.Api\obj\Debug\net10.0\CryptoTracker.Api.genruntimeconfig.cache
 C:\Users\overs\source\repos\ra-202451061674\aaw\trabalhos\crypto-tracker\src\CryptoTracker.Api\obj\Debug\net10.0\ref\CryptoTracker.Api.dll
+C:\Users\overs\source\repos\ra-202451061674\aaw\trabalhos\crypto-tracker\src\CryptoTracker.Api\bin\Debug\net10.0\CryptoTracker.Api.staticwebassets.runtime.json
+C:\Users\overs\source\repos\ra-202451061674\aaw\trabalhos\crypto-tracker\src\CryptoTracker.Api\obj\Debug\net10.0\compressed\jeqz68gwyq-{0}-e2atu69rfg-e2atu69rfg.gz
