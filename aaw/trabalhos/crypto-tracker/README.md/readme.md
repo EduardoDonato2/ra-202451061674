@@ -47,3 +47,9 @@ Configure as variáveis abaixo no ambiente ou via `appsettings.json` local (nunc
 Na raiz do projeto (`crypto-tracker`), inicie o container do MongoDB:
 ```bash
 docker compose up -d
+
+## Uso de IA
+
+- **Ferramentas usadas:** Gemini (Google)
+- **Onde ajudou:** Apoio na estruturação inicial das camadas em .NET 10, configuração da autenticação JWT, escrita dos testes unitários com xUnit/Moq e montagem da interface web assíncrona.
+- **O que eu revisei/reescrevi: ** Escrevi o todas interfaces, autenticacoes, regras de negocios, docker, etc, porem o codigo todo foi tirando duvida com a IA, testando, perguntando oque podia melhorar e porque a opcao era melhor etc.
