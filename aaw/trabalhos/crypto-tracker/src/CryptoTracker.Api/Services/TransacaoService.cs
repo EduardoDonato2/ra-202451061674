@@ -43,6 +43,7 @@ public class TransacaoService : ITransacaoService
         if (tipo != "COMPRA" && tipo != "VENDA")
             throw new ArgumentException("O tipo de operação deve ser 'COMPRA' ou 'VENDA'.");
 
+        transacao.Id = null; // Garante que o MongoDB gere um ObjectId válido
         transacao.TipoOperacao = tipo;
         transacao.Ticker = transacao.Ticker.Trim().ToUpper();
         transacao.DataHora = DateTime.UtcNow;

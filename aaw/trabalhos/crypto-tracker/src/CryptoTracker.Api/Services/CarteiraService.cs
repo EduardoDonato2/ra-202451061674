@@ -24,6 +24,7 @@ public class CarteiraService : ICarteiraService
         if (string.IsNullOrWhiteSpace(carteira.NomeCarteira))
             throw new ArgumentException("O nome da carteira é obrigatório.");
 
+        carteira.Id = null; // Garante que o MongoDB gere um ObjectId válido
         carteira.DataCriacao = DateTime.UtcNow;
         
         await _carteiraRepository.CriarAsync(carteira);

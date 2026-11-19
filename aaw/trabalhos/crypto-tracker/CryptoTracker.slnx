@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CryptoTracker.Api/CryptoTracker.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CryptoTracker.Tests/CryptoTracker.Tests.csproj" />
+  </Folder>
+</Solution>
